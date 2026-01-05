@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IHSG Stock Screener Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <nav class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <h1 class="text-2xl font-bold">
+                <i class="fas fa-chart-line"></i> IHSG Stock Screener Pro
+            </h1>
+            <p class="text-blue-100 text-sm">Screening lengkap saham Indonesia berdasarkan teknikal & fundamental</p>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        
+        <!-- Filter Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">🔍 Filter Screening</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <!-- Sektor -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Sektor</label>
+                    <select id="sectorFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Semua Sektor --</option>
+                        <option value="banking">🏦 Banking</option>
+                        <option value="energy">⚡ Energy & Mining</option>
+                        <option value="telecom">📞 Telecom</option>
+                        <option value="consumer">🛍️ Consumer</option>
+                        <option value="property">🏢 Property</option>
+                        <option value="industrial">🏭 Industrial</option>
+                        <option value="construction">🏗️ Construction</option>
+                        <option value="automotive">🚗 Automotive</option>
+                        <option value="retail">🏪 Retail</option>
+                    </select>
+                </div>
+
+                <!-- Indeks -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Indeks</label>
+                    <select id="indexFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Semua Indeks --</option>
+                        <option value="idx30">IDX30</option>
+                        <option value="idx80">IDX80</option>
+                        <option value="dividend">IDX Dividend 20</option>
+                    </select>
+                </div>
+
+                <!-- Max P/E Ratio -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Max P/E Ratio</label>
+                    <input type="number" id="peFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 25">
+                </div>
+
+                <!-- Min ROE -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Min ROE (%)</label>
+                    <input type="number" id="roeFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 15">
+                </div>
+
+                <!-- Min Dividen -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Min Dividend Yield (%)</label>
+                    <input type="number" id="divFilter" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 3">
+                </div>
+
+                <!-- Market Cap -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Market Cap</label>
+                    <select id="marketCapFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Semua --</option>
+                        <option value="large">Large Cap (>10T)</option>
+                        <option value="mid">Mid Cap (1T-10T)</option>
+                        <option value="small">Small Cap (<1T)</option>
+                    </select>
+                </div>
+
+                <!-- Screening Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipe Screening</label>
+                    <select id="screeningType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="overall">⭐ Overall (Terbaik)</option>
+                        <option value="technical">📈 Technical Only</option>
+                        <option value="fundamental">💼 Fundamental Only</option>
+                        <option value="dividend">💵 Dividend Focus</option>
+                        <option value="growth">🚀 Growth Focus</option>
+                    </select>
+                </div>
+
+                <!-- Min Score -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Min Score</label>
+                    <input type="number" id="minScore" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" value="50" min="0" max="100">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3">
+                <button id="screenBtn" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-play mr-2"></i> Jalankan Screening
+                </button>
+                <button id="resetBtn" class="bg-gray-400 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-500 transition">
+                    <i class="fas fa-redo mr-2"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingDiv" class="text-center py-12 bg-white rounded-lg shadow-lg" style="display: none;">
+            <div class="inline-block">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                <p class="text-gray-600 font-medium">Sedang screening saham...</p>
+                <p class="text-gray-500 text-sm mt-2" id="loadingStatus">Memproses...</p>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorDiv" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4" style="display: none;">
+            <p class="text-red-700" id="errorMessage"></p>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" style="display: none;">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <p class="text-gray-600 text-sm">Total Hasil</p>
+                    <p class="text-3xl font-bold text-blue-600" id="totalResults">0</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <p class="text-gray-600 text-sm">Excellent</p>
+                    <p class="text-3xl font-bold text-green-600" id="countExcellent">0</p>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                    <p class="text-gray-600 text-sm">Good</p>
+                    <p class="text-3xl font-bold text-yellow-600" id="countGood">0</p>
+                </div>
+                <div class="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                    <p class="text-gray-600 text-sm">Fair</p>
+                    <p class="text-3xl font-bold text-orange-600" id="countFair">0</p>
+                </div>
+                <div class="bg-red-50 rounded-lg p-4 border border-red-200">
+                    <p class="text-gray-600 text-sm">Poor</p>
+                    <p class="text-3xl font-bold text-red-600" id="countPoor">0</p>
+                </div>
+            </div>
+
+            <!-- Export Button -->
+            <div class="mb-4">
+                <button id="exportBtn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition">
+                    <i class="fas fa-download mr-2"></i> Export to CSV
+                </button>
+            </div>
+
+            <!-- Results Table -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b">
+                    <h3 class="text-lg font-bold">📋 Hasil Screening</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs md:text-sm">
+                        <thead class="bg-gray-100 sticky top-16">
+                            <tr>
+                                <th class="px-2 py-3 text-left font-semibold cursor-pointer hover:bg-gray-200" onclick="sortTable('ticker')">Ticker</th>
+                                <th class="px-2 py-3 text-left font-semibold">Sektor</th>
+                                <th class="px-2 py-3 text-right font-semibold cursor-pointer hover:bg-gray-200" onclick="sortTable('price')">Harga</th>
+                                <th class="px-2 py-3 text-center font-semibold cursor-pointer hover:bg-gray-200" onclick="sortTable('overall_score')">Overall</th>
+                                <th class="px-2 py-3 text-center font-semibold cursor-pointer hover:bg-gray-200" onclick="sortTable('tech_score')">Tech</th>
+                                <th class="px-2 py-3 text-center font-semibold cursor-pointer hover:bg-gray-200" onclick="sortTable('fund_score')">Fund</th>
+                                <th class="px-2 py-3 text-right font-semibold">P/E</th>
+                                <th class="px-2 py-3 text-right font-semibold">ROE</th>
+                                <th class="px-2 py-3 text-right font-semibold">Dividen</th>
+                                <th class="px-2 py-3 text-right font-semibold">D/E</th>
+                                <th class="px-2 py-3 text-right font-semibold">Market Cap</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-6 flex justify-center gap-2">
+                <button id="prevBtn" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">← Sebelumnya</button>
+                <span id="pageInfo" class="px-4 py-2">Halaman 1</span>
+                <button id="nextBtn" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Selanjutnya →</button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-gray-500 text-sm py-8 border-t mt-8">
+            <p>💡 Data real-time dari Yahoo Finance | Silakan lakukan riset lanjutan sebelum invest</p>
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive stock data database - 50+ saham IHSG
+        const stockDatabase = {
+            // BANKING (10 saham)
+            'BBCA.JK': { name: 'Bank Central Asia', sector: 'banking', index: 'idx30', marketCap: 'large' },
+            'BBRI.JK': { name: 'Bank Rakyat Indonesia', sector: 'banking', index: 'idx30', marketCap: 'large' },
+            'BMRI.JK': { name: 'Bank Mandiri', sector: 'banking', index: 'idx30', marketCap: 'large' },
+            'BRIS.JK': { name: 'Bank Syariah Indonesia', sector: 'banking', index: 'idx80', marketCap: 'large' },
+            'BDMN.JK': { name: 'Bank Danamon', sector: 'banking', index: 'idx30', marketCap: 'large' },
+            'BNII.JK': { name: 'Bank Internasional Indonesia', sector: 'banking', index: 'idx30', marketCap: 'large' },
+            'BTPN.JK': { name: 'Bank Tabungan Pensiunan', sector: 'banking', index: 'idx80', marketCap: 'mid' },
+            'BPTA.JK': { name: 'Bank Pertamina', sector: 'banking', index: 'idx80', marketCap: 'mid' },
+            'PNBN.JK': { name: 'Bank Panin', sector: 'banking', index: 'idx30', marketCap: 'mid' },
+            'OCBC.JK': { name: 'OCBC NISP', sector: 'banking', index: 'idx80', marketCap: 'mid' },
+
+            // ENERGY & MINING (8 saham)
+            'PGAS.JK': { name: 'Perusahaan Gas Negara', sector: 'energy', index: 'idx30', marketCap: 'large' },
+            'ANTM.JK': { name: 'Antam', sector: 'energy', index: 'idx30', marketCap: 'large' },
+            'INDY.JK': { name: 'Indika Energy', sector: 'energy', index: 'idx30', marketCap: 'large' },
+            'ADRO.JK': { name: 'Adaro Energy Indonesia', sector: 'energy', index: 'idx30', marketCap: 'large' },
+            'BUMI.JK': { name: 'Bumi Resources', sector: 'energy', index: 'idx30', marketCap: 'large' },
+            'INCO.JK': { name: 'Vale Indonesia', sector: 'energy', index: 'idx30', marketCap: 'large' },
+            'TINS.JK': { name: 'Timah', sector: 'energy', index: 'idx80', marketCap: 'mid' },
+            'DKFT.JK': { name: 'Darma Henwa', sector: 'energy', index: 'idx80', marketCap: 'small' },
+
+            // TELECOM (3 saham)
+            'TELK.JK': { name: 'Telekomunikasi Indonesia', sector: 'telecom', index: 'idx30', marketCap: 'large' },
+            'EXCL.JK': { name: 'XL Axiata', sector: 'telecom', index: 'idx30', marketCap: 'large' },
+            'ISAT.JK': { name: 'Indosat Ooredoo Hutchison', sector: 'telecom', index: 'idx30', marketCap: 'large' },
+
+            // CONSUMER (8 saham)
+            'INDF.JK': { name: 'Indofood', sector: 'consumer', index: 'idx30', marketCap: 'large' },
+            'UNVR.JK': { name: 'Unilever Indonesia', sector: 'consumer', index: 'idx30', marketCap: 'large' },
+            'MYOR.JK': { name: 'Mayora Indah', sector: 'consumer', index: 'idx80', marketCap: 'mid' },
+            'SMBR.JK': { name: 'Sumber Alfaria Trijaya', sector: 'consumer', index: 'idx80', marketCap: 'mid' },
+            'NICE.JK': { name: 'Nichireki', sector: 'consumer', index: 'idx80', marketCap: 'mid' },
+            'ULTJ.JK': { name: 'Ultra Jaya', sector: 'consumer', index: 'idx80', marketCap: 'mid' },
+            'KDSI.JK': { name: 'Kedaung Setia Industrial', sector: 'consumer', index: 'idx80', marketCap: 'small' },
+            'CPIN.JK': { name: 'Charoen Pokphand Indonesia', sector: 'consumer', index: 'idx30', marketCap: 'large' },
+
+            // PROPERTY & REAL ESTATE (5 saham)
+            'PPRO.JK': { name: 'PP Properti', sector: 'property', index: 'idx80', marketCap: 'large' },
+            'MTLA.JK': { name: 'Metrolama Realti', sector: 'property', index: 'idx80', marketCap: 'small' },
+            'DMAS.JK': { name: 'Duta Maju Semesta', sector: 'property', index: 'idx80', marketCap: 'mid' },
+            'BKSL.JK': { name: 'Sentul City', sector: 'property', index: 'idx80', marketCap: 'mid' },
+            'PWON.JK': { name: 'Pakuwon Jati', sector: 'property', index: 'idx80', marketCap: 'mid' },
+
+            // INDUSTRIAL & CONSTRUCTION (6 saham)
+            'SMGR.JK': { name: 'Semen Gresik', sector: 'industrial', index: 'idx30', marketCap: 'large' },
+            'JSMR.JK': { name: 'Jasa Marga', sector: 'construction', index: 'idx80', marketCap: 'large' },
+            'WIKA.JK': { name: 'Wijaya Karya', sector: 'construction', index: 'idx80', marketCap: 'mid' },
+            'WSKT.JK': { name: 'Waskita Karya', sector: 'construction', index: 'idx80', marketCap: 'mid' },
+            'PTBA.JK': { name: 'Tambang Batubara Bukit Asam', sector: 'energy', index: 'idx30', marketCap: 'large' },
+            'TATA.JK': { name: 'Trimitra Abadi Transportasi', sector: 'industrial', index: 'idx80', marketCap: 'small' },
+
+            // AUTOMOTIVE (3 saham)
+            'ASII.JK': { name: 'Astra International', sector: 'automotive', index: 'idx30', marketCap: 'large' },
+            'GJTL.JK': { name: 'Gajah Tunggal', sector: 'automotive', index: 'idx80', marketCap: 'mid' },
+            'AUTO.JK': { name: 'Astra Otoparts', sector: 'automotive', index: 'idx80', marketCap: 'mid' },
+
+            // RETAIL (4 saham)
+            'MAPI.JK': { name: 'Mitra Adiperkasa Tbk', sector: 'retail', index: 'idx80', marketCap: 'mid' },
+            'LPPF.JK': { name: 'PT Matahari Department Store', sector: 'retail', index: 'idx80', marketCap: 'mid' },
+            'MIDI.JK': { name: 'Midi Utama Indonesia', sector: 'retail', index: 'idx80', marketCap: 'mid' },
+            'BMTR.JK': { name: 'Global Mediacom', sector: 'retail', index: 'idx80', marketCap: 'mid' },
+
+            // PHARMACEUTICAL (2 saham)
+            'KAEF.JK': { name: 'Kimia Farma', sector: 'consumer', index: 'idx80', marketCap: 'mid' },
+            'SIDO.JK': { name: 'Industri Jamu dan Farmasi Sido Muncul', sector: 'consumer', index: 'idx80', marketCap: 'small' },
+        };
+
+        let currentPage = 1;
+        const itemsPerPage = 50;
+        let allResults = [];
+        let currentSort = { column: 'overall_score', direction: 'desc' };
+
+        // Event listeners
+        document.getElementById('screenBtn').addEventListener('click', screenStocks);
+        document.getElementById('resetBtn').addEventListener('click', resetFilters);
+        document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+        document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
+        document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
+
+        async function screenStocks() {
+            const filters = {
+                sector: document.getElementById('sectorFilter').value,
+                index: document.getElementById('indexFilter').value,
+                pe: parseFloat(document.getElementById('peFilter').value) || null,
+                roe: parseFloat(document.getElementById('roeFilter').value) || null,
+                div: parseFloat(document.getElementById('divFilter').value) || null,
+                marketCap: document.getElementById('marketCapFilter').value,
+                screeningType: document.getElementById('screeningType').value,
+                minScore: parseFloat(document.getElementById('minScore').value) || 0,
+            };
+
+            // Get tickers based on filters
+            let tickers = Object.keys(stockDatabase);
+            
+            if (filters.sector) {
+                tickers = tickers.filter(t => stockDatabase[t].sector === filters.sector);
+            }
+            if (filters.index) {
+                tickers = tickers.filter(t => stockDatabase[t].index === filters.index);
+            }
+            if (filters.marketCap) {
+                tickers = tickers.filter(t => stockDatabase[t].marketCap === filters.marketCap);
+            }
+
+            if (tickers.length === 0) {
+                showError('Tidak ada saham yang sesuai dengan filter');
+                return;
+            }
+
+            document.getElementById('loadingDiv').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('errorDiv').style.display = 'none';
+
+            allResults = [];
+            const totalTickers = tickers.length;
+
+            for (let i = 0; i < tickers.length; i++) {
+                const ticker = tickers[i];
+                document.getElementById('loadingStatus').textContent = `${i + 1}/${totalTickers} - ${ticker}`;
+                
+                try {
+                    const result = await screenSingleStock(ticker, filters);
+                    if (result) {
+                        allResults.push(result);
+                    }
+                } catch (error) {
+                    console.error(`Error: ${ticker}`, error);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            document.getElementById('loadingDiv').style.display = 'none';
+
+            if (allResults.length === 0) {
+                showError('Tidak ada data yang berhasil diproses. Cek koneksi internet Anda.');
+                return;
+            }
+
+            // Apply additional filters
+            allResults = allResults.filter(r => {
+                if (filters.pe && r.pe_ratio && r.pe_ratio > filters.pe) return false;
+                if (filters.roe && r.roe && r.roe < filters.roe) return false;
+                if (filters.div && r.dividend_yield && r.dividend_yield < filters.div) return false;
+                if (r.overall_score < filters.minScore) return false;
+                return true;
+            });
+
+            // Sort results
+            allResults.sort((a, b) => {
+                const aVal = a[currentSort.column];
+                const bVal = b[currentSort.column];
+                const direction = currentSort.direction === 'asc' ? 1 : -1;
+                if (aVal === null || aVal === undefined) return 1;
+                if (bVal === null || bVal === undefined) return -1;
+                return (aVal > bVal ? 1 : -1) * direction;
+            });
+
+            currentPage = 1;
+            displayResults();
+        }
+
+        async function screenSingleStock(ticker, filters) {
+            try {
+                const response = await fetch(
+                    `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=price,financialData,defaultKeyStatistics`,
+                    { headers: { 'User-Agent': 'Mozilla/5.0' } }
+                );
+
+                if (!response.ok) throw new Error('Not found');
+                const data = await response.json();
+                if (!data.quoteSummary.result) throw new Error('No data');
+
+                const quote = data.quoteSummary.result[0];
+                const price = quote.price?.regularMarketPrice?.raw || 0;
+                const pe = quote.defaultKeyStatistics?.trailingPE?.raw;
+                const roe = quote.financialData?.returnOnEquity?.raw;
+                const divYield = quote.defaultKeyStatistics?.dividendYield?.raw;
+                const debtToEquity = quote.financialData?.debtToEquity?.raw;
+                const marketCap = quote.price?.marketCap?.raw;
+                const profitMargin = quote.financialData?.profitMargins?.raw;
+
+                let techScore = 50;
+                let fundScore = 50;
+
+                // Technical scoring - based on P/E
+                if (pe && pe < 12) techScore = 85;
+                else if (pe && pe < 15) techScore = 75;
+                else if (pe && pe < 18) techScore = 65;
+                else if (pe && pe < 22) techScore = 55;
+                else if (pe && pe < 30) techScore = 45;
+                else if (pe && pe >= 30) techScore = 35;
+
+                // Fundamental scoring
+                if (pe && pe > 0) {
+                    if (pe < 12) fundScore += 20;
+                    else if (pe < 15) fundScore += 15;
+                    else if (pe < 20) fundScore += 10;
+                    else if (pe > 30) fundScore -= 10;
+                }
+                
+                if (roe) {
+                    const roePercent = roe * 100;
+                    if (roePercent > 25) fundScore += 20;
+                    else if (roePercent > 20) fundScore += 18;
+                    else if (roePercent > 15) fundScore += 15;
+                    else if (roePercent > 10) fundScore += 10;
+                    else if (roePercent < 5) fundScore -= 10;
+                }
+                
+                if (divYield) {
+                    const divPercent = divYield * 100;
+                    if (divPercent > 7) fundScore += 20;
+                    else if (divPercent > 5) fundScore += 15;
+                    else if (divPercent > 3) fundScore += 10;
+                    else if (divPercent > 1) fundScore += 5;
+                }
+
+                if (debtToEquity) {
+                    if (debtToEquity < 0.3) fundScore += 12;
+                    else if (debtToEquity < 0.6) fundScore += 10;
+                    else if (debtToEquity < 1) fundScore += 5;
+                    else if (debtToEquity > 2) fundScore -= 10;
+                }
+
+                if (profitMargin) {
+                    const pmPercent = profitMargin * 100;
+                    if (pmPercent > 20) fundScore += 10;
+                    else if (pmPercent > 10) fundScore += 5;
+                }
+
+                techScore = Math.max(0, Math.min(100, techScore));
+                fundScore = Math.max(0, Math.min(100, fundScore));
+
+                let overallScore;
+                if (filters.screeningType === 'technical') overallScore = techScore;
+                else if (filters.screeningType === 'fundamental') overallScore = fundScore;
+                else if (filters.screeningType === 'dividend') overallScore = Math.min(100, (divYield || 0) * 1000 * 0.7 + fundScore * 0.3);
+                else if (filters.screeningType === 'growth') overallScore = Math.min(100, (roe ? roe * 200 : 50) * 0.6 + techScore * 0.4);
+                else overallScore = techScore * 0.6 + fundScore * 0.4;
+
+                return {
+                    ticker: ticker,
+                    name: stockDatabase[ticker]?.name || '',
+                    sector: stockDatabase[ticker]?.sector || '',
+                    price: price,
+                    tech_score: Math.round(techScore * 100) / 100,
+                    fund_score: Math.round(fundScore * 100) / 100,
+                    overall_score: Math.round(overallScore * 100) / 100,
+                    pe_ratio: pe ? Math.round(pe * 100) / 100 : null,
+                    roe: roe ? Math.round(roe * 10000) / 100 : null,
+                    dividend_yield: divYield ? Math.round(divYield * 10000) / 100 : 0,
+                    debt_to_equity: debtToEquity ? Math.round(debtToEquity * 100) / 100 : null,
+                    market_cap: marketCap ? (marketCap / 1e12).toFixed(1) : null,
+                };
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function displayResults() {
+            const stats = {
+                excellent: allResults.filter(r => r.overall_score >= 75).length,
+                good: allResults.filter(r => r.overall_score >= 60 && r.overall_score < 75).length,
+                fair: allResults.filter(r => r.overall_score >= 45 && r.overall_score < 60).length,
+                poor: allResults.filter(r => r.overall_score < 45).length
+            };
+
+            document.getElementById('totalResults').textContent = allResults.length;
+            document.getElementById('countExcellent').textContent = stats.excellent;
+            document.getElementById('countGood').textContent = stats.good;
+            document.getElementById('countFair').textContent = stats.fair;
+            document.getElementById('countPoor').textContent = stats.poor;
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageResults = allResults.slice(start, end);
+
+            const scoreColor = (score) => {
+                if (score >= 75) return 'bg-green-100 text-green-800';
+                if (score >= 60) return 'bg-yellow-100 text-yellow-800';
+                if (score >= 45) return 'bg-orange-100 text-orange-800';
+                return 'bg-red-100 text-red-800';
+            };
+
+            const sectorEmoji = {
+                banking: '🏦',
+                insurance: '📋',
+                energy: '⚡',
+                telecom: '📞',
+                consumer: '🛍️',
+                property: '🏢',
+                industrial: '🏭',
+                construction: '🏗️',
+                automotive: '🚗',
+                retail: '🏪'
+            };
+
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = pageResults.map(r => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-2 py-3 font-bold text-blue-600 cursor-pointer hover:underline" onclick="openDetail('${r.ticker}')">${r.ticker}</td>
+                    <td class="px-2 py-3 text-xs">${sectorEmoji[r.sector] || ''}</td>
+                    <td class="px-2 py-3 text-right text-xs">Rp ${Math.round(r.price).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${scoreColor(r.overall_score)}">${r.overall_score}</span></td>
+                    <td class="px-2 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${scoreColor(r.tech_score)}">${r.tech_score}</span></td>
+                    <td class="px-2 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${scoreColor(r.fund_score)}">${r.fund_score}</span></td>
+                    <td class="px-2 py-3 text-right text-xs">${r.pe_ratio ? r.pe_ratio.toFixed(1) : '-'}</td>
+                    <td class="px-2 py-3 text-right text-xs">${r.roe ? r.roe.toFixed(1) : '-'}%</td>
+                    <td class="px-2 py-3 text-right text-xs">${r.dividend_yield.toFixed(2)}%</td>
+                    <td class="px-2 py-3 text-right text-xs">${r.debt_to_equity ? r.debt_to_equity.toFixed(2) : '-'}</td>
+                    <td class="px-2 py-3 text-right text-xs">${r.market_cap ? r.market_cap + 'T' : '-'}</td>
+                </tr>
+            `).join('');
+
+            const totalPages = Math.ceil(allResults.length / itemsPerPage);
+            document.getElementById('pageInfo').textContent = `Halaman ${currentPage} dari ${totalPages} (${allResults.length} hasil)`;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+
+            document.getElementById('resultsContainer').style.display = 'block';
+        }
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(allResults.length / itemsPerPage);
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            displayResults();
+            window.scrollTo(0, 0);
+        }
+
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'desc';
+            }
+
+            allResults.sort((a, b) => {
+                const aVal = a[column];
+                const bVal = b[column];
+                const direction = currentSort.direction === 'asc' ? 1 : -1;
+                if (aVal === null || aVal === undefined) return 1;
+                if (bVal === null || bVal === undefined) return -1;
+                return (aVal > bVal ? 1 : -1) * direction;
+            });
+
+            currentPage = 1;
+            displayResults();
+        }
+
+        function exportToCSV() {
+            if (allResults.length === 0) {
+                alert('Tidak ada data untuk diexport');
+                return;
+            }
+
+            let csv = 'Ticker,Nama,Sektor,Harga,Overall,Teknikal,Fundamental,P/E,ROE,Dividen,D/E,Market Cap\n';
+            
+            allResults.forEach(r => {
+                csv += `"${r.ticker}","${r.name}","${r.sector}",${r.price},${r.overall_score},${r.tech_score},${r.fund_score},${r.pe_ratio || '-'},${r.roe || '-'},${r.dividend_yield},${r.debt_to_equity || '-'},${r.market_cap || '-'}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `IHSG-Screening-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        function resetFilters() {
+            document.getElementById('sectorFilter').value = '';
+            document.getElementById('indexFilter').value = '';
+            document.getElementById('peFilter').value = '';
+            document.getElementById('roeFilter').value = '';
+            document.getElementById('divFilter').value = '';
+            document.getElementById('marketCapFilter').value = '';
+            document.getElementById('screeningType').value = 'overall';
+            document.getElementById('minScore').value = '50';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('loadingDiv').style.display = 'none';
+            document.getElementById('errorDiv').style.display = 'none';
+            allResults = [];
+        }
+
+        function showError(message) {
+            document.getElementById('errorDiv').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('loadingDiv').style.display = 'none';
+        }
+
+        function openDetail(ticker) {
+            const result = allResults.find(r => r.ticker === ticker);
+            if (result) {
+                const detailText = `
+📊 ${result.ticker} - ${result.name}
+
+💰 HARGA & VALUASI
+Harga: Rp ${Math.round(result.price).toLocaleString('id-ID')}
+P/E Ratio: ${result.pe_ratio ? result.pe_ratio.toFixed(2) : 'N/A'}
+Market Cap: ${result.market_cap}T
+
+📈 PROFITABILITAS
+ROE: ${result.roe ? result.roe.toFixed(2) : 'N/A'}%
+Dividend Yield: ${result.dividend_yield.toFixed(2)}%
+
+💪 LEVERAGE
+Debt to Equity: ${result.debt_to_equity ? result.debt_to_equity.toFixed(2) : 'N/A'}
+
+⭐ SCORING
+Overall Score: ${result.overall_score}/100
+Technical: ${result.tech_score}/100
+Fundamental: ${result.fund_score}/100
+                `;
+                alert(detailText);
+            }
+        }
+    </script>
+</body>
+</html>
